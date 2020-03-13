@@ -10,7 +10,7 @@ input_size = 60
 num_layers = 1
 
 lstm = LSTM(input_size, num_layers,num_dropout)
-lstm.load_state_dict(torch.load('lstm_one_layer_test_epoch30.pth'))
+lstm.load_state_dict(torch.load('lstm_one_layer_test_with_plot_epoch15.pth'))
 lstm.eval()#do not use dropout
 
 

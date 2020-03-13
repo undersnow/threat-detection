@@ -3,11 +3,12 @@ import torch
 from torch import nn, optim
 import numpy as np
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 import random
 import torch.nn.functional as F
 random.seed(3)
 
-num_epochs = 100
+num_epochs = 30
 learning_rate = 0.01
 num_dropout=0.3
 input_size = 60
@@ -61,9 +62,10 @@ if __name__ == "__main__":
     
     train_threat_data=np.load('train_threat_data3.npy').tolist()[:2000]#676[:100]#
     train_normal_data=np.load('train_normal_data3.npy').tolist()[:2000]#6760[:100]#
-    test_threat_data=np.load('test_threat_data3.npy').tolist()[:500]#20]#
-    test_normal_data=np.load('test_normal_data3.npy').tolist()[:500]#20]#
-    
+    test_threat_data=np.load('test_threat_data3.npy').tolist()[:800]#20]#
+    test_normal_data=np.load('test_normal_data3.npy').tolist()[:800]#20]#
+    plot_precision=[]
+    plot_recall=[]
     '''
     train_threat_data=np.load('train_threat_origin_data3.npy').tolist()[:2000]#676
     train_normal_data=np.load('train_normal_origin_data3.npy').tolist()[:2000]#6760
@@ -148,8 +150,22 @@ if __name__ == "__main__":
         
         print(TP,FN)
         print(FP,TN)
-        
-        torch.save(lstm.state_dict(),"(origin)lstm_one_layer_test_epoch"+str(epoch)+".pth")
+        precision=TP/(TP+FP)
+        recall=TP/(TP+FN)
+        #print("TP,FN,FP,TN:",TP,FN,FP,TN)
+    
+        print("precison:",precision)
+        print("recall:",recall)
+        plot_precision.append(precision)
+        plot_recall.append(recall)
+        torch.save(lstm.state_dict(),"lstm_one_layer_test_with_plot_epoch"+str(epoch)+".pth")
+
+    
+    plt.plot(plot_precision,'-o',label = 'plot_precision')
+    plt.plot(plot_recall,'-s',label = 'plot_recall')
+    plt.legend()
+    plt.savefig('lstm_one_layer_test0.jpg')
+    plt.show()    
     print("successfully saved file!")
     
 
