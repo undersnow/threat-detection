@@ -7,8 +7,6 @@ import random
 import torch.nn.functional as F
 random.seed(3)
 
-
-
 num_epochs = 100
 learning_rate = 0.01
 num_dropout=0.3
@@ -34,8 +32,6 @@ def evaluate(sequence):
 
 def predict(sequence):
     output = evaluate(sequence)
-
-    # Get top N categories
     v, i = torch.topk(output,1)
     if i.item() == 1:
         return True
@@ -43,38 +39,24 @@ def predict(sequence):
         return False
 
 class LSTM(nn.Module):
-    def __init__(self,  input_size, num_layers,num_dropout):#num_classes
+    def __init__(self,  input_size, num_layers,num_dropout):
         super(LSTM, self).__init__()
-        #self.num_classes = num_classes
         self.num_layers = num_layers
         self.input_size = input_size
-        #self.hidden_size = hidden_size
         self.seq_length = seq_length
         self.dp=nn.Dropout(num_dropout)
-        self.lstm_1 = nn.LSTM(input_size=input_size, hidden_size=hidden_size,#hidden_size,
-                            num_layers=num_layers, batch_first=True)
+        self.lstm_1 = nn.LSTM(input_size=input_size, hidden_size=hidden_size,num_layers=num_layers, batch_first=True)
      
-        #分类问题
         self.fc = nn.Linear(hidden_size, 2)  
 
     def forward(self, x,h0_1,c0_1):
-        # Propagate input through LSTM
         out_1, (h_1, c_1) = self.lstm_1(self.dp(x), (h0_1, c0_1))
-
-        #h_out = h_out.view(-1, self.hidden_size)
-        
-        
         out = F.log_softmax(self.fc(out_1[:,-1:,:]),dim=2)
-        
         return out,h_1,c_1
     
     def init_hc(self):
         return torch.zeros(self.num_layers, 1, hidden_size),torch.zeros(self.num_layers, 1, hidden_size)
     
-
-#num_classes = 59
-
-#lstm = LSTM(num_classes, input_size, hidden_size, num_layers)
 if __name__ == "__main__":
     
     train_threat_data=np.load('train_threat_data3.npy').tolist()[:2000]#676[:100]#
@@ -102,7 +84,7 @@ if __name__ == "__main__":
     lstm = LSTM(input_size, num_layers,num_dropout)
 
     criterion = torch.nn.NLLLoss()
-    optimizer = torch.optim.Adam(lstm.parameters(), lr=learning_rate)
+    #optimizer = torch.optim.Adam(lstm.parameters(), lr=learning_rate)
     threat_category=torch.tensor([0], dtype=torch.long)
     #each epoch
     for epoch in tqdm(range(num_epochs)):
@@ -122,8 +104,10 @@ if __name__ == "__main__":
             current_train_data=input_list[data_to_train[i]]
             if data_to_train[i]>=valve:
                 threat_category=torch.tensor([1], dtype=torch.long)
+                
             h_state_1,c_state_1 =lstm.init_hc()
             lstm.zero_grad()
+            
             origin_daily_sequence=current_train_data
             encoded_daily_sequence=sequence_to_tensor(origin_daily_sequence)
             sizechanged_daily_sequence=encoded_daily_sequence.view(1,-1,60)
@@ -131,9 +115,7 @@ if __name__ == "__main__":
 
             for k in range(sequence_length):
                 daily_action=sizechanged_daily_sequence[:,k:k+1,:]
-
                 outputs,h_state_1,c_state_1 = lstm(daily_action,h_state_1,c_state_1)
-               
                 h_state_1=h_state_1.detach()
                 c_state_1=c_state_1.detach()
 
@@ -143,6 +125,7 @@ if __name__ == "__main__":
             with torch.no_grad():
                 for p in lstm.parameters():
                     p.data.add_(-learning_rate, p.grad.data)
+                    
         print("Epoch: %d, loss: %1.5f" % (epoch, loss.item())) 
 
         lstm.eval()#do not use dropout
@@ -156,7 +139,7 @@ if __name__ == "__main__":
                 TP+=1#!!!
             else:
                 FN+=1
-        print("-----------------hhh----------------------------")
+        print("-----------------training----------------------------")
         for i in range(len(test_normal_data)):
             if predict(sequence_to_tensor(test_normal_data[i])):
                 FP+=1
@@ -165,7 +148,7 @@ if __name__ == "__main__":
         
         print(TP,FN)
         print(FP,TN)
-    #print(outputs)
+        
         torch.save(lstm.state_dict(),"(origin)lstm_one_layer_test_epoch"+str(epoch)+".pth")
     print("successfully saved file!")
     
