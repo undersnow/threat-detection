@@ -88,8 +88,16 @@ def threat_judge(date,user):
             if i==regular_date:
                 return True    
     return False
-    
-    
+
+def additional_threat_judge(final_event_list):
+    for k in [11, 26, 10,25, 40, 55, 41, 56]:
+        if k in final_event_list:
+            return True
+    return False
+        
+
+print(len(list(insider_dictionary.keys())))
+input("ddd")
 for each_user in users_all:#each_user 用户ID
     each_user_path[each_user]=os.path.join(result_path,each_user)
     date_path[each_user]=os.listdir(each_user_path[each_user])
@@ -141,13 +149,18 @@ for each_user in users_all:#each_user 用户ID
                     #print(changed_data.iloc[j]['url'])
                     if pd.isnull(changed_data.iloc[j]['url']):
                         continue
-                    elif re.search(r"(wikileaks|spectorsoft|keylog|softactivity|webwatchernow|wellresearchedreviews|moniter|surveillance|www.relytec.com|www.best-spy-soft|www.refog.com)",changed_data.iloc[j]['url']):
+                    #elif re.search(r"(wikileaks|spectorsoft|keylog|softactivity|webwatchernow|wellresearchedreviews|moniter|surveillance|www.relytec.com|www.best-spy-soft|www.refog.com)",changed_data.iloc[j]['url']):
+                    elif re.search(r"(wikileaks|NNXrlybttre)",changed_data.iloc[j]['url']):
                         event_list[j]=HACKTIVIST
-                        #input("true")
+                        #input("true")  NNXrlybttre
                         continue
-                    elif re.search(r"(jobhunter|craigslist|monster.com|linkedin|indeed.com|boeing.com|raytheon|aol.com|northropgrumman|hp.com|harris.com|simplyhired|lockheedmartin|hotjob|job-hunt|beyond.com|idealist.org|careerbuilder)",changed_data.iloc[j]['url']):
+                    #elif re.search(r"(jobhunter|craigslist|monster.com|linkedin|indeed.com|boeing.com|raytheon|aol.com|northropgrumman|hp.com|harris.com|simplyhired|lockheedmartin|hotjob|job-hunt|beyond.com|idealist.org|careerbuilder)",changed_data.iloc[j]['url']):
+                    elif re.search(r"WboUhagvat",changed_data.iloc[j]['url']):     
+                       # print(changed_data.iloc[j]['url'])
+                       # print(changed_data.iloc[j]['date'])
+                        #print(each_user)
+                        #input("eeeee")
                         event_list[j]=JOBHUNTING
-                        
                 #print("--------------")
                 result_data.insert(2,'event', event_list)
                 #print(result_data)  
@@ -255,16 +268,31 @@ for each_user in users_all:#each_user 用户ID
         #print(final_event_list)        #action sequence :each user each day
         df.insert(3,'final_event', final_event_list)     
         #print(df.iloc[0]['date'],df.iloc[0]['user'])  
-        
+        #print(hhh)
         if threat_judge(df.iloc[0]['date'],df.iloc[0]['user']):
+            threat_data.append(final_event_list.tolist())  
+        elif additional_threat_judge(final_event_list.tolist()):  
             threat_data.append(final_event_list.tolist())
         else:
-            non_threat_data.append(final_event_list.tolist())     
+            non_threat_data.append(final_event_list.tolist())
+            '''for k in [11, 26, 10,25, 40, 55, 41, 56]:
+                if k in final_event_list:
+                    
+                    threat_data.append(final_event_list.tolist()) 
+                    break
+                    print(df.iloc[0]['user'],df.iloc[0]['date'])
+                    print(df)
+                    print(final_event_list)
+                    input("eeeeeeeeeeeeeeeeeeee")
+                    '''
+            
         #print(result_threat)
+    '''
     if count%200==0:
         np.save('result_threat0_'+str(count)+'.npy', result_threat) 
         print("save one file ")
-
-np.save('result_threat0_fully.npy', result_threat) 
-print("save result_threat.npy successfully !!!")
+         '''
+np.save('result_threat_all_fully0.npy', result_threat) 
+print("save result_threat_all_fully0.npy successfully !!!")
         
+
