@@ -1,24 +1,20 @@
 # encoding:utf-8 
-import os # 用于创建目录等应用
-import sys # 用于返回当前目录，以及关闭程序等
 import pandas as pd
 import numpy as np
 import User_Month_Day_Extract
-import tqdm
-import glob
-import re
+
 # 该模块将每个用户的文件转换成序列
 # 保存csv文件
 #  用户ID，日期，序列
 # AAE0190，2011-05-16，1 2 3，
-import sys
-import math
 
 
 answer_path = r'E:\eclipse-workspace\my_project\answers\answers'
+insider_path = r'E:\eclipse-workspace\my_project\r4.2\insiders.csv'
+
 insider_dictionary={}
 insider_file_dict={}
-insider_origindata=pd.read_csv(r'E:\eclipse-workspace\my_project\r4.2\insiders.csv',names=['dataset','scenario','details','user','start','end'],index_col=False)
+insider_origindata=pd.read_csv(insider_path,names=['dataset','scenario','details','user','start','end'],index_col=False)
 insider_filename=insider_origindata['details'] #r4.2-1-BLS0678.csv
 for i in range(insider_origindata.shape[0]):
     insider_file_dict[insider_origindata.iloc[i]['user']]=answer_path+"\\"+insider_origindata.iloc[i]['details'][:6]+"\\"+insider_origindata.iloc[i]['details']
@@ -38,8 +34,8 @@ for i in insider_file_dict.keys():
     temp_list1=list(set(temp_list)) 
     temp_list1.sort(key=temp_list.index)
     insider_dictionary[i]=temp_list1
-print(insider_dictionary)
+#print(insider_dictionary)
 
 
 np.save('insider_dictionary.npy', insider_dictionary) 
-input("ddd")
+print("-------finished!!!---------")

@@ -1,43 +1,21 @@
 # encoding:utf-8 
 import os # 用于创建目录等应用
-import sys # 用于返回当前目录，以及关闭程序等
 import pandas as pd
-import numpy as np
-import User_Month_Day_Extract
-import tqdm
-import glob
-import re
-# 该模块将每个用户的文件转换成序列
-# 保存csv文件
-#  用户ID，日期，序列
-# AAE0190，2011-05-16，1 2 3，
-import sys
 import math
 
+result_path = r'E:\eclipse-workspace\my_project\CERT4.2_resulthhhhhhh'
 
 assigned_pc_dictionary={}
 
 def progress_bar(portion, total):
-    """
-    total 总数据大小，portion 已经传送的数据大小
-    :param portion: 已经接收的数据量
-    :param total: 总数据量
-    :return: 接收数据完成，返回True
-    """
     part = total / 50  # 1%数据的大小
     count = math.ceil(portion / part)
-    
     print(('[%-50s]%.2f%%' % (('>' * count), portion / total * 100)))#,end="")
-    
-    
     if portion >= total:
         print('all done !!! \n')
         return True
 
 
-dataset_path = r'E:\eclipse-workspace\my_project\r4.2'
-CERT_LDAP__path = r'E:\eclipse-workspace\my_project\r4.2\LDAP'
-result_path = r'E:\eclipse-workspace\my_project\CERT4.2_resulthhhhhhh'
 users_all=os.listdir(result_path)
 each_user_path={}#each user
 date_path={}#each user and the date
@@ -68,5 +46,5 @@ result_assigned_pc=pd.DataFrame(pd.Series(assigned_pc_dictionary),columns=['pc']
 result_assigned_pc=result_assigned_pc.reset_index().rename(columns={'user':'pc'})
 
 #print(result_assigned_pc)
-result_assigned_pc.to_csv(r'E:\eclipse-workspace\my_project\assigned_pc\device_dictionary.csv',header=0,index=0)
-print("finished!!!")
+result_assigned_pc.to_csv(r'device_dictionary000.csv',header=0,index=0)
+print("-------finished!!!---------")

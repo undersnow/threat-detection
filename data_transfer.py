@@ -1,20 +1,14 @@
 # encoding:utf-8 
-
-import os # 用于创建目录等应用
-import sys # 用于返回当前目录，以及关闭程序等
+import os
 import pandas as pd
 import numpy as np
-import User_Month_Day_Extract
-import tqdm
-import glob
 import re
 import time
-# 该模块将每个用户的文件转换成序列
-# 保存csv文件
-#  用户ID，日期，序列
-# AAE0190，2011-05-16，1 2 3，
-import sys
 import math
+
+result_path = r'E:\eclipse-workspace\my_project\CERT4.2_resulthhhhhhh'
+
+
 LOGON=1
 LOGOFF=2
 EXE=3
@@ -31,47 +25,31 @@ EXTERNAL_EMAIL=13
 CONNECT=14
 DISCONNECT=15
 BASIC_EVENT_COUNT=15
-dataset_path = r'E:\eclipse-workspace\my_project\r4.2'
-CERT_LDAP__path = r'E:\eclipse-workspace\my_project\r4.2\LDAP'
-result_path = r'E:\eclipse-workspace\my_project\CERT4.2_resulthhhhhhh'
 
 #print(insider_dictionary)
 threat_data=[]
 non_threat_data=[]
 result_threat={1:threat_data,0:non_threat_data}
 
-
 assigned_pc_dictionary={}
 pc_csv=pd.read_csv(r'E:\eclipse-workspace\my_project\assigned_pc\device_dictionary.csv',names=['user','pc'],index_col=False)
-#print(pc_csv['user'])
-#assigned_pc_dictionary=dict(zip(list(pc_csv['user']), list(pc_csv['pc'])))
-#print(assigned_pc_dictionary)         
-#input("ddd")
 
-#print(pc_csv['user'])
 assigned_pc_dictionary=dict(zip(list(pc_csv['user']), list(pc_csv['pc'])))
 
+# 01/01/2010 01:01:01
+def extract_date(date):
+    year = date[6:10]
+    day= date[3:5]
+    month = date[:2]
+    return year, month, day
+
 def progress_bar(portion, total):
-    """
-    total 总数据大小，portion 已经传送的数据大小
-    :param portion: 已经接收的数据量
-    :param total: 总数据量
-    :return: 接收数据完成，返回True
-    """
     part = total / 50  # 1%数据的大小
     count = math.ceil(portion / part)
-    
     print(('[%-50s]%.2f%%' % (('>' * count), portion / total * 100)))#,end="")
-    
-    
     if portion >= total:
         print('all done !!! \n')
         return True
-
-
-    
-    
-
 
 users_all=os.listdir(result_path)
 each_user_path={}#each user
@@ -82,7 +60,7 @@ insider_dictionary = np.load('insider_dictionary.npy').item()
 
 def threat_judge(date,user): 
     if user in insider_dictionary.keys():
-        y, m, d = User_Month_Day_Extract.Extract_Date(date)
+        y, m, d = extract_date(date)
         regular_date=y+"-"+m+"-"+d
         for i in insider_dictionary[user]:
             if i==regular_date:
@@ -95,9 +73,6 @@ def additional_threat_judge(final_event_list):
             return True
     return False
         
-
-print(len(list(insider_dictionary.keys())))
-input("ddd")
 for each_user in users_all:#each_user 用户ID
     each_user_path[each_user]=os.path.join(result_path,each_user)
     date_path[each_user]=os.listdir(each_user_path[each_user])
@@ -156,8 +131,8 @@ for each_user in users_all:#each_user 用户ID
                         continue
                     #elif re.search(r"(jobhunter|craigslist|monster.com|linkedin|indeed.com|boeing.com|raytheon|aol.com|northropgrumman|hp.com|harris.com|simplyhired|lockheedmartin|hotjob|job-hunt|beyond.com|idealist.org|careerbuilder)",changed_data.iloc[j]['url']):
                     elif re.search(r"WboUhagvat",changed_data.iloc[j]['url']):     
-                       # print(changed_data.iloc[j]['url'])
-                       # print(changed_data.iloc[j]['date'])
+                        # print(changed_data.iloc[j]['url'])
+                        # print(changed_data.iloc[j]['date'])
                         #print(each_user)
                         #input("eeeee")
                         event_list[j]=JOBHUNTING
@@ -264,7 +239,6 @@ for each_user in users_all:#each_user 用户ID
                 final_event_list[i]=df.iloc[i]['event']+BASIC_EVENT_COUNT*2                    
         #device judge    
          
-
         #print(final_event_list)        #action sequence :each user each day
         df.insert(3,'final_event', final_event_list)     
         #print(df.iloc[0]['date'],df.iloc[0]['user'])  
@@ -275,24 +249,10 @@ for each_user in users_all:#each_user 用户ID
             threat_data.append(final_event_list.tolist())
         else:
             non_threat_data.append(final_event_list.tolist())
-            '''for k in [11, 26, 10,25, 40, 55, 41, 56]:
-                if k in final_event_list:
-                    
-                    threat_data.append(final_event_list.tolist()) 
-                    break
-                    print(df.iloc[0]['user'],df.iloc[0]['date'])
-                    print(df)
-                    print(final_event_list)
-                    input("eeeeeeeeeeeeeeeeeeee")
-                    '''
-            
-        #print(result_threat)
-    '''
-    if count%200==0:
-        np.save('result_threat0_'+str(count)+'.npy', result_threat) 
-        print("save one file ")
-         '''
+
+
 np.save('result_threat_all_fully0.npy', result_threat) 
 print("save result_threat_all_fully0.npy successfully !!!")
+
         
 
