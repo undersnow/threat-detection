@@ -66,12 +66,8 @@ if __name__ == "__main__":
     test_normal_data=np.load('test_normal_data3.npy').tolist()[:800]#20]#
     plot_precision=[]
     plot_recall=[]
-    '''
-    train_threat_data=np.load('train_threat_origin_data3.npy').tolist()[:2000]#676
-    train_normal_data=np.load('train_normal_origin_data3.npy').tolist()[:2000]#6760
-    test_threat_data=np.load('test_threat_origin_data3.npy').tolist()[:500]
-    test_normal_data=np.load('test_normal_origin_data3.npy').tolist()[:500]
-    '''
+    plot_accuracy=[]
+    plot_f_measure=[]
     
     input_list=train_normal_data+train_threat_data#7436
     valve=len(train_normal_data)
@@ -150,21 +146,33 @@ if __name__ == "__main__":
         
         print(TP,FN)
         print(FP,TN)
-        precision=TP/(TP+FP)
-        recall=TP/(TP+FN)
+        accuracy=(TP+TN)/(TP+FN+FP+TN)#所有样本被正确预测的占比
+        
+        if(TP+FP)!=0:
+            precision=TP/(TP+FP)#预测为正类的样本中，实际为正类的占比
+        else:
+            precision=0
+        
+        recall=TP/(TP+FN)#实际为正类的样本中，正确预测为正类的占比
+        
+        f_measure=2*TP/(2*TP+FP+FN)#精确率和召回率的调和平均数
         #print("TP,FN,FP,TN:",TP,FN,FP,TN)
     
         print("precison:",precision)
         print("recall:",recall)
         plot_precision.append(precision)
         plot_recall.append(recall)
-        torch.save(lstm.state_dict(),"lstm_one_layer_test_with_plot_epoch"+str(epoch)+".pth")
+        plot_accuracy.append(accuracy)
+        plot_f_measure.append(f_measure)
+        #torch.save(lstm.state_dict(),"lstm_one_layer_test_with_plot_epoch"+str(epoch)+".pth")
 
-    
-    plt.plot(plot_precision,'-o',label = 'plot_precision')
-    plt.plot(plot_recall,'-s',label = 'plot_recall')
+    plt.plot(plot_accuracy, '-^',label = 'Accuracy')
+    plt.plot(plot_precision,'-o',label = 'Precision')
+    plt.plot(plot_recall,'-s',label = 'Recall')
+    plt.plot(plot_f_measure, '-p',label = 'F-Measure')
+    #'', '-^', '-v', '-p', '-d', '-h', '-2', '-8', '-6'
     plt.legend()
-    plt.savefig('lstm_one_layer_test0.jpg')
+    plt.savefig('lstm_one_layer_test1.jpg')
     plt.show()    
     print("successfully saved file!")
     
